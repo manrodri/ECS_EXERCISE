@@ -1,6 +1,15 @@
 import os
 import logging
 import re
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from db_setup import Base, VersionTable
+
+HOST='localhost'
+USERNAME='root'
+PASSWORD='password'
+DB_NAME='test'
+DB_URL = 'mysql://{user}:{passwd}@{host}/{db}'.format(host=HOST, user=USERNAME, passwd=PASSWORD,db=DB_NAME)
 
 def set_up_logger():
     # set logger
@@ -37,3 +46,19 @@ def get_ordered_scripts(scripts):
     # number part are not correlative.
     # regex that matches our filenames: \d+\.?[a-zA-Z]+
     pass
+
+def create_connection(db_url):
+    engine = create_engine(db_url)
+    Base.metadata.bind = engine
+    DBSession = sessionmaker(bind=engine)
+    return DBSession()
+
+#engine = create_engine('mysql://root:password@localhost/test')
+def update_db_version(db_url, new_version):
+    session = create_connection(db_url)
+    version = session.query(VersionTable).first()
+    version.version = new_version
+    session.add(version)
+    session.commit()
+    logger.info('DB version updated: {}'.format(str(version.version)))
+

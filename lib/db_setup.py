@@ -1,0 +1,26 @@
+import os
+import sys
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
+
+Base = declarative_base()
+
+class VersionTable(Base):
+    __tablename__ = 'versionTable'
+
+    version = Column(Integer, primary_key=True)
+
+
+class Table1(Base):
+    __tablename__ = 'table1'
+    id = Column(Integer, primary_key=True)
+    row1 = Column(String(250))
+    row2 = Column(String(250))
+
+#engine = create_engine('mysql://root:password@localhost/test')
+engine = create_engine('sqlite:///test.db')
+Base.metadata.create_all(engine)
+
+

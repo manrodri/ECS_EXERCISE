@@ -23,7 +23,7 @@ args = parser.parse_args()
 # we can assume the arguments are correct at this point
 
 def main():
-    print args
+    print (args)
 
 if __name__ == '__main__':
     main()
