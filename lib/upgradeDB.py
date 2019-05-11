@@ -2,11 +2,11 @@
 
 import logging
 import argparse
+import utils
+#import mysql.connector
+#from mysql.connector import Error
 
-#set logger
-FORMAT = '[%(levelname)-2s] %(message)s'
-logging.basicConfig(format=FORMAT, level=10)
-logger = logging.getLogger()
+logger = utils.set_up_logger()
 
 # build parser and parse arguments
 parser = argparse.ArgumentParser(description='command line tool to automate db upgrade')
@@ -19,6 +19,8 @@ parser.add_argument('password', help='username db password')
 parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
 
 args = parser.parse_args()
+
+# we can assume the arguments are correct at this point
 
 def main():
     print args
