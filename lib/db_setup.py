@@ -19,8 +19,9 @@ class Table1(Base):
     row1 = Column(String(250))
     row2 = Column(String(250))
 
-#engine = create_engine('mysql://root:password@localhost/test')
-engine = create_engine('sqlite:///test.db')
+engine = create_engine('mysql://root:password@localhost/test')
 Base.metadata.create_all(engine)
+
+
 
 

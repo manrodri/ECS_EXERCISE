@@ -5,11 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from db_setup import Base, VersionTable
 from sqlalchemy.sql import text
 
-HOST='localhost'
-USERNAME='root'
-PASSWORD='password'
-DB_NAME='test'
-DB_URL = 'mysql://{user}:{passwd}@{host}/{db}'.format(host=HOST, user=USERNAME, passwd=PASSWORD,db=DB_NAME)
+
 
 def set_up_logger():
     # set logger
@@ -32,7 +28,10 @@ def get_scripts(path):
 
 def get_ordered_scripts(scripts):
     script_dict = {file: get_number_from_filename(file) for file in scripts if get_number_from_filename(file)}
-    return sorted(script_dict.keys(), reverse=True)
+    return sorted(script_dict.keys(), reverse=True), script_dict
+
+def get_max_script(scripts):
+    return max([get_number_from_filename(file) for file in scripts if get_number_from_filename(file)])
 
 
 def get_number_from_filename(filename):
@@ -54,19 +53,25 @@ def create_connection(db_url):
     return DBSession()
 
 
-def run_raw_sql(session, statement):
-    # execute statment
-    statement = text(statement)
-    logger.debug('Executing {raw_sql}'.format(raw_sql=statement))
-    result = session.execute(statement)
-    logger.info('Success: sql statement run.')
-    return result
+def run_raw_sql(db_url, statement):
+    # it needs error handling
+    eng = create_engine(db_url)
+    with eng.connect() as con:
+        rs = con.execute(statement)
+        data = rs.fetchone()[0]
+        logger.info("Data: %s" % data)
 
+def run_sql_script(db_url, file):
+    for line in file:
+        try:
+            run_raw_sql(db_url, line)
+        except Exception:
+            pass
 
 def get_db_version(session):
     version = session.query(VersionTable).first()
     logger.debug('DB version: {}'.format(version.version))
-    return version.version
+    return int(version.version)
 
 
 def update_db_version(db_url, new_version):
