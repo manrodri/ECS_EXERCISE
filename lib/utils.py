@@ -1,9 +1,9 @@
 import os
 import logging
-import re
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_setup import Base, VersionTable
+from sqlalchemy.sql import text
 
 HOST='localhost'
 USERNAME='root'
@@ -29,6 +29,12 @@ def get_scripts(path):
     scripts = os.listdir(path)
     return [file for file in scripts if file.endswith('.sql')]
 
+
+def get_ordered_scripts(scripts):
+    script_dict = {file: get_number_from_filename(file) for file in scripts if get_number_from_filename(file)}
+    return sorted(script_dict.keys(), reverse=True)
+
+
 def get_number_from_filename(filename):
     result = []
     for char in filename:
@@ -40,28 +46,21 @@ def get_number_from_filename(filename):
     if number:
         return int(number)
 
-def get_ordered_scripts(scripts):
-    #numbers = [get_number_from_filename(file) for file in scripts]
-    numbers = []
-    for file in scripts:
-        n = get_number_from_filename(file)
-        numbers.append(n)
-    return sorted(numbers, reverse=True)
-
-
-    # order the scripts according the following criteria:
-    # order from top to bottom.
-    # file name not always contain a dot separating number from name.
-    # each file name contain a number part and a name part despite numbers can be part of the name.
-    # number part are not correlative.
-    # regex that matches our filenames: \d+\.?[a-zA-Z]+
-    pass
 
 def create_connection(db_url):
     engine = create_engine(db_url)
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
     return DBSession()
+
+
+def run_raw_sql(session, statement):
+    # execute statment
+    statement = text(statement)
+    logger.debug('Executing {raw_sql}'.format(raw_sql=statement))
+    result = session.execute(statement)
+    logger.info('Success: sql statement run.')
+    return result
 
 
 def get_db_version(session):
@@ -77,4 +76,3 @@ def update_db_version(db_url, new_version):
     session.add(version)
     session.commit()
     logger.info('DB version updated: {}'.format(str(version.version)))
-

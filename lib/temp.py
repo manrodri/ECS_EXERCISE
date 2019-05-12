@@ -1,15 +1,15 @@
-from utils import get_number_from_filename, get_ordered_scripts
+from utils import create_connection, run_raw_sql, get_db_version, update_db_version
+statements = [
+    "CREATE TABLE table2 (row1 VARCHAR(10), row2 INTEGER)",
+    "INSERT INTO table1 (row1, row2) VALUES('foo', 'bar')",
+    "SELECT * FROM table1",
+    "SELECT id, row1 FROM table1 WHERE row1='foo'"
 
-names = [
-    '045.createtable.sql',
-    '045createtable.sql',
-    'foobar32.somestatement.sql'
-    '2345.sofhihfd.sql',
-    '10000000.dfjdkjfkd.sql',
-    '-124fjdkfjkdfjkdj.sql',
-    '-12345.fjkdfjdk.sql'
 ]
 
-print(get_number_from_filename(names))
+DB_URL = 'sqlite:///test.db'
 
 
+session = create_connection(DB_URL)
+result = run_raw_sql(session, statements[2])
+print result
