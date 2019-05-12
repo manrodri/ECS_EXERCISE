@@ -16,8 +16,8 @@ class VersionTable(Base):
 class Table1(Base):
     __tablename__ = 'table1'
     id = Column(Integer, primary_key=True)
-    row1 = Column(String(250))
-    row2 = Column(String(250))
+    col1 = Column(String(250))
+    col2 = Column(String(250))
 
 engine = create_engine('mysql://root:password@localhost/test')
 Base.metadata.create_all(engine)

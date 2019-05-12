@@ -1,15 +1,9 @@
 #!/usr/bin/python2.7
-
+import os
+import sys
 import argparse
 import utils
-
-HOST='localhost'
-USERNAME='root'
-PASSWORD='password'
-DB_NAME='test'
-DB_URL = 'mysql://{user}:{passwd}@{host}/{db}'.format(host=HOST, user=USERNAME, passwd=PASSWORD,db=DB_NAME)
-
-logger = utils.set_up_logger()
+import logging
 
 # build parser and parse arguments
 parser = argparse.ArgumentParser(description='command line tool to automate db upgrade')
@@ -20,12 +14,39 @@ parser.add_argument('host', help='db host')
 parser.add_argument('db_name', help='db name')
 parser.add_argument('password', help='username db password')
 parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
+parser.add_argument('--debug', action='store_true')
+parser.add_argument('--updateVersion')
 
 args = parser.parse_args()
 
 # we can assume the arguments are correct at this point
 
+
+def set_up_logger(level=20):
+    # set logger
+    FORMAT = '[%(levelname)-2s] %(message)s'
+    logging.basicConfig(format=FORMAT, level=level)
+    logger = logging.getLogger()
+    return logger
+    
+if args.debug:
+    logger = set_up_logger(level=10)
+else:
+    logger = set_up_logger()
+
 def main():
+    
+    DB_URL = 'mysql://{user}:{passwd}@{host}/{db}'.format(host=args.host, user=args.username,\
+        passwd=args.password,db=args.db_name)
+        
+    
+    logger.debug('DB_URL: {url}'.format(url=DB_URL))
+    
+    if args.updateVersion:
+        utils.update_db_version(DB_URL, args.updateVersion)
+        sys.exit(0)
+        
+    
     # get scripts
     scripts = utils.get_scripts(args.path_to_sql)
     highest_value = utils.get_max_script(scripts)
@@ -36,17 +57,21 @@ def main():
 
 
     if utils.do_upgrade(version, highest_value):
+        # each script which number is higher that version must be executed:
+        # lower to higher => version must be updated for each script
 
         logger.info("Highest value on sql scripts: {max}".format(max=highest_value))
         logger.info("Doing DB upgrade")
 
         ordered_scripts, scripts_dict = utils.get_ordered_scripts(scripts)
-        for script in ordered_scripts:
-            if scripts_dict[script] > version:
-                # execute script
-                utils.run_sql_script(DB_URL, script)
-                # update version
-                version = utils.update_db_version(DB_URL, scripts_dict[script])
+        
+        for root, dirs, files in os.walk(args.path_to_sql):
+            for f in files:
+                if scripts_dict[f] > version:
+                    # execute script
+                    utils.run_sql_script(DB_URL,  os.path.join(args.path_to_sql, f))
+                    # update version
+                    version = utils.update_db_version(DB_URL, scripts_dict[f])
 
         logger.info('Ugrade completed')
         logger.info('New version: {v}'.format(v=version))

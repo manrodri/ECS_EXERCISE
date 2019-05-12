@@ -4,17 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_setup import Base, VersionTable
 from sqlalchemy.sql import text
-
-
-
-def set_up_logger():
-    # set logger
-    FORMAT = '[%(levelname)-2s] %(message)s'
-    logging.basicConfig(format=FORMAT, level=10)
-    logger = logging.getLogger()
-    return logger
-
-logger= set_up_logger()
+from upgradeDB import  logger
 
 
 def do_upgrade(db_version, highest_value):
@@ -28,7 +18,7 @@ def get_scripts(path):
 
 def get_ordered_scripts(scripts):
     script_dict = {file: get_number_from_filename(file) for file in scripts if get_number_from_filename(file)}
-    return sorted(script_dict.keys(), reverse=True), script_dict
+    return sorted(script_dict.keys()), script_dict
 
 def get_max_script(scripts):
     return max([get_number_from_filename(file) for file in scripts if get_number_from_filename(file)])
@@ -57,20 +47,33 @@ def run_raw_sql(db_url, statement):
     # it needs error handling
     eng = create_engine(db_url)
     with eng.connect() as con:
+        logger.info('Running: {s}'.format(s=statement))
         rs = con.execute(statement)
-        data = rs.fetchone()[0]
-        logger.info("Data: %s" % data)
-
-def run_sql_script(db_url, file):
-    for line in file:
         try:
-            run_raw_sql(db_url, line)
-        except Exception:
+            data = rs.fetchone()[0]
+            logger.info("Data: %s" % data)
+        except Exception as e:
+            logger.error(e)
             pass
+        
+
+# file = '/home/ubuntu/ECS_user_case/SQL_scripts/060.insertIntoTable1.sql'
+# run_sql_script('mysql://root:password@localhost/test', file)
+def run_sql_script(db_url, file):
+    # absolute path
+    # it only works with statement in one line
+    with open(file, 'r') as f:
+        logger.info('running: {}'.format(file))
+        for line in f:
+            logger.info('running: {}'.format(line))
+            try:
+                run_raw_sql(db_url, line)
+            except Exception as e:
+                logger.error(e)
+                pass
 
 def get_db_version(session):
     version = session.query(VersionTable).first()
-    logger.debug('DB version: {}'.format(version.version))
     return int(version.version)
 
 
@@ -81,3 +84,4 @@ def update_db_version(db_url, new_version):
     session.add(version)
     session.commit()
     logger.info('DB version updated: {}'.format(str(version.version)))
+    return int(version.version)
