@@ -4,7 +4,7 @@ import sys
 import unittest
 import logging
 
-scriptdir = os.path.join(os.getcwd(), 'src')
+scriptdir = os.getcwd()
 libdir = os.path.join(scriptdir, 'lib')
 sys.path.insert(0, libdir)
 

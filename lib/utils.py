@@ -30,15 +30,25 @@ def get_scripts(path):
     return [file for file in scripts if file.endswith('.sql')]
 
 def get_number_from_filename(filename):
-    # 1 char is a number: store it
-    # 1 char is not an number then error -> exclude file from executing
-    # 2 char is a number append it -> continue
-    # 2 is not number -> return number
-    # 3 char is number append it -> continue
-    # 3 is not number -> return number ...
-    pass
+    result = []
+    for char in filename:
+        if char.isdigit():
+            result.append(char)
+        else:
+            break
+    number = ''.join(result)
+    if number:
+        return int(number)
 
 def get_ordered_scripts(scripts):
+    #numbers = [get_number_from_filename(file) for file in scripts]
+    numbers = []
+    for file in scripts:
+        n = get_number_from_filename(file)
+        numbers.append(n)
+    return sorted(numbers, reverse=True)
+
+
     # order the scripts according the following criteria:
     # order from top to bottom.
     # file name not always contain a dot separating number from name.
@@ -53,7 +63,13 @@ def create_connection(db_url):
     DBSession = sessionmaker(bind=engine)
     return DBSession()
 
-#engine = create_engine('mysql://root:password@localhost/test')
+
+def get_db_version(session):
+    version = session.query(VersionTable).first()
+    logger.debug('DB version: {}'.format(version.version))
+    return version.version
+
+
 def update_db_version(db_url, new_version):
     session = create_connection(db_url)
     version = session.query(VersionTable).first()
