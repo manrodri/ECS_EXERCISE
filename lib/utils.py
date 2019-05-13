@@ -57,10 +57,7 @@ def run_raw_sql(db_url, statement):
             pass
         
 
-# file = '/home/ubuntu/ECS_user_case/SQL_scripts/060.insertIntoTable1.sql'
-# run_sql_script('mysql://root:password@localhost/test', file)
 def run_sql_script(db_url, file):
-    # absolute path
     # it only works with statement in one line
     with open(file, 'r') as f:
         logger.info('running: {}'.format(file))
