@@ -22,18 +22,8 @@ args = parser.parse_args()
 
 # we can assume the arguments are correct at this point
 
+logger = utils.set_up_logger()
 
-def set_up_logger(level=20):
-    # set logger
-    FORMAT = '[%(levelname)-2s] %(message)s'
-    logging.basicConfig(format=FORMAT, level=level)
-    logger = logging.getLogger()
-    return logger
-    
-if args.debug:
-    logger = set_up_logger(level=10)
-else:
-    logger = set_up_logger()
 
 def main():
     
@@ -61,9 +51,11 @@ def main():
     except CreateConnectionException as e:
         logger.error('There was an Error when creating the DB sesion')
         sys.exit(1)
-    version = utils.get_db_version(session)
-    #ordered_scripts = utils.get_ordered_scripts(scripts)
-
+    try:
+        version = utils.get_db_version(session)
+    except LoginDbException as e:
+        logger.error(e)
+        sys.exit(4)
 
     if utils.do_upgrade(version, highest_value):
         # each script which number is higher that version must be executed:

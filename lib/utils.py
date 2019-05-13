@@ -1,12 +1,22 @@
 import os
+import sys
 import logging
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_setup import Base, VersionTable
 from sqlalchemy.sql import text
-from upgradeDB import  logger
 from exception import LoginDbException, SqlSyntaxException, CreateConnectionException
 
+
+def set_up_logger():
+    # set logger
+    FORMAT = '[%(levelname)-2s] %(message)s'
+    logging.basicConfig(format=FORMAT, level=10)
+    logger = logging.getLogger()
+    return logger
+
+logger = set_up_logger()
 
 def do_upgrade(db_version, highest_value):
     return highest_value > db_version
@@ -53,13 +63,11 @@ def run_raw_sql(db_url, statement):
     eng = create_engine(db_url)
     with eng.connect() as con:
         logger.info('Running: {s}'.format(s=statement))
-        rs = con.execute(statement)
         try:
-            data = rs.fetchone()[0]
-            logger.info("Data: %s" % data)
-        except Exception as e:
+            rs = con.execute(statement)
+        except sqlalchemy.exc.OperationalError as e:
             logger.error(e)
-            pass
+            raise SqlSyntaxException
         
 
 def run_sql_script(db_url, file):
@@ -70,12 +78,20 @@ def run_sql_script(db_url, file):
             logger.info('running: {}'.format(line))
             try:
                 run_raw_sql(db_url, line)
+            except SqlSyntaxException as e:
+                logge.error(e) 
+                sys.exit(3)
             except Exception as e:
                 logger.error(e)
-                pass
+                sys.exit(2)
+                
 
 def get_db_version(session):
-    version = session.query(VersionTable).first()
+    try:
+        version = session.query(VersionTable).first()
+    except Exception as e:
+        logging.error(e)
+        raise LoginDbException
     return int(version.version)
 
 

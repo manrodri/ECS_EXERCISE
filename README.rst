@@ -42,7 +42,8 @@ SET UP:
     - SQL scripts for upgrading the system are available at local hosted path location. 
     - SQL scripts are just sequential SQL statements. 
     - The DB version is stored in the same DB to be updated in a table called ‘versionTable’. This table contains a single row. A column called ‘version’ is used to store these values.
-    
+
+
 HOW THE DB IS UPDATED:
 
     - A comparison between the version stored in the DB and the number of the files contained in the above mentions path location is made to decide if the system needs updating.
@@ -60,11 +61,18 @@ DELIVERABLE:
     - Propose a script to automate the scenario described previously. Languages accepted: Bash, Python2.7, PHP, Shell, Ruby, Powershell.
 
 ::
+
+
 Running Script
     $ ./upgradeDB.py $directory-with-sql-scripts $username-for-the-db $db-host $db-name $db-password
 ::
 ::
 Running Tests
+
+db_setup.py allows creation of two tables to do some manual testing. However, manuel insertion of initial values is needed at this stage.
+Instructions to access aws.cloud9 environment will be sent by email.
+
+The script includes an optional argument --updateVersion that makes easy to set the db version to a previous value.
 
 Tests can be run by executing run_test.py python file found at /home/ubuntu/ECS_user_case/ECS_EXERCISE or in the src folder
 if the project is clone from https://github.com/manrodri/ECS_EXERCISE.git
