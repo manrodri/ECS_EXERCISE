@@ -20,7 +20,7 @@ summary is described below:
 * Install python 2.7. 
 * Install python devel tools.
 * Install python-mysqld ($ sudo apt-get install python-mysqldb).
-8 Pip install sqlalchemy.
+* Pip install sqlalchemy.
 
 
 THE SCRIPT:
@@ -42,6 +42,8 @@ SET UP:
     - SQL scripts for upgrading the system are available at local hosted path location. 
     - SQL scripts are just sequential SQL statements. 
     - The DB version is stored in the same DB to be updated in a table called ‘versionTable’. This table contains a single row. A column called ‘version’ is used to store these values.
+    
+    - A cloud9 environment which contains the dabase up an running an a folder with scripts to test. IF THE TESTING IS DONE IN A LOCAL ENVIRONMENT RUN $python db_setup.py AND INSERT MANUALLY the initial values for testing in both tables.
 
 
 HOW THE DB IS UPDATED:
