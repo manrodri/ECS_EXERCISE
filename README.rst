@@ -5,22 +5,22 @@ at https://ecs.csod.com/ux/ats/careersite/5/home/requisition/142?c=ecs
 
 Development stages:
 
-    1.- Requirements analysis.
-    2.- Planning
-    3.- Research
-    4.- Development
-    5.- Implementation
+    * Requirements analysis.
+    * Planning
+    * Research
+    * Development
+    * Implementation
 
 Environment set up:
 
 A cloud development environment is available in aws.cloud9 login instructions will be sent in a separate email. Furthermore, set up 
 summary is described below:
 
-1.- Ubuntu 18.04 LTS hosts the MySQL 5.7 DB server
-2.- Install python 2.7. 
-3.- Install python devel tools.
-4.- Install python-mysqld ($ sudo apt-get install python-mysqldb).
-5.- Pip install sqlalchemy.
+* Ubuntu 18.04 LTS hosts the MySQL 5.7 DB server
+* Install python 2.7. 
+* Install python devel tools.
+* Install python-mysqld ($ sudo apt-get install python-mysqldb).
+8 Pip install sqlalchemy.
 
 
 THE SCRIPT:
