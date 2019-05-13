@@ -60,6 +60,10 @@ DELIVERABLE:
     - Propose a script to automate the scenario described previously. Languages accepted: Bash, Python2.7, PHP, Shell, Ruby, Powershell.
 
 ::
+Running Script
+    $ ./upgradeDB.py $directory-with-sql-scripts $username-for-the-db $db-host $db-name $db-password
+::
+::
 Running Tests
 
 Tests can be run by executing run_test.py python file found at /home/ubuntu/ECS_user_case/ECS_EXERCISE or in the src folder
