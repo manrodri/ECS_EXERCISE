@@ -4,6 +4,7 @@ import sys
 import argparse
 import utils
 import logging
+from exception import LoginDbException, SqlSyntaxException, CreateConnectionException
 
 # build parser and parse arguments
 parser = argparse.ArgumentParser(description='command line tool to automate db upgrade')
@@ -38,20 +39,28 @@ def main():
     
     DB_URL = 'mysql://{user}:{passwd}@{host}/{db}'.format(host=args.host, user=args.username,\
         passwd=args.password,db=args.db_name)
-        
-    
     logger.debug('DB_URL: {url}'.format(url=DB_URL))
-    
+
+    # Error handling for possible sql path location errors.
+    try:
+        os.path.exists(args.path_to_sql) or os.path.isdir(args.path_to_sql)
+    except IOError as e:
+        logger.error(e)
+        sys.exit(1)
+
     if args.updateVersion:
         utils.update_db_version(DB_URL, args.updateVersion)
         sys.exit(0)
-        
-    
+
     # get scripts
     scripts = utils.get_scripts(args.path_to_sql)
     highest_value = utils.get_max_script(scripts)
 
-    session = utils.create_connection(DB_URL)
+    try:
+        session = utils.create_connection(DB_URL)
+    except CreateConnectionException as e:
+        logger.error('There was an Error when creating the DB sesion')
+        sys.exit(1)
     version = utils.get_db_version(session)
     #ordered_scripts = utils.get_ordered_scripts(scripts)
 

@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from db_setup import Base, VersionTable
 from sqlalchemy.sql import text
 from upgradeDB import  logger
+from exception import LoginDbException, SqlSyntaxException, CreateConnectionException
 
 
 def do_upgrade(db_version, highest_value):
@@ -37,10 +38,14 @@ def get_number_from_filename(filename):
 
 
 def create_connection(db_url):
-    engine = create_engine(db_url)
-    Base.metadata.bind = engine
-    DBSession = sessionmaker(bind=engine)
-    return DBSession()
+    try:
+        engine = create_engine(db_url)
+        Base.metadata.bind = engine
+        DBSession = sessionmaker(bind=engine)
+        return DBSession()
+    except Exception as e:
+        logger.error(e)
+        raise CreateConnectionException
 
 
 def run_raw_sql(db_url, statement):
