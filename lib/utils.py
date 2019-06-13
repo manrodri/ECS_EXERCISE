@@ -79,7 +79,7 @@ def run_sql_script(db_url, file):
             try:
                 run_raw_sql(db_url, line)
             except SqlSyntaxException as e:
-                logge.error(e) 
+                logger.error(e) 
                 sys.exit(3)
             except Exception as e:
                 logger.error(e)
