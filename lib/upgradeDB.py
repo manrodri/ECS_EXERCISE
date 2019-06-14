@@ -77,6 +77,10 @@ def main():
         logger.info('Ugrade completed')
         logger.info('New version: {v}'.format(v=version))
 
+    else:
+        logger.info('Higher value on sql scripts: {max} is equal or lower than version: {version}'\
+                .format(version=version, max=highest_value))
+        logger.info('Nothing to do');
 
 if __name__ == '__main__':
     main()
