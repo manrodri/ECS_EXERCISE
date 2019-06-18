@@ -80,7 +80,7 @@ def main():
     else:
         logger.info('Higher value on sql scripts: {max} is equal or lower than version: {version}'\
                 .format(version=version, max=highest_value))
-        logger.info('Nothing to do');
+        logger.info('Nothing to do')
 
 if __name__ == '__main__':
     main()
